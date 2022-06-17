@@ -1,0 +1,13 @@
+{
+    "namespace": "InitItems",
+    "items" : {
+        "includes": [
+            {
+                "name": "content-root",
+                "path": "/sitecore/content",
+                "scope": "singleItem",
+                "allowedPushOperations": "createAndUpdate"
+            }
+        ]
+    }
+}
