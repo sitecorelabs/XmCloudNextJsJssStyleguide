@@ -20,7 +20,7 @@ if (Test-Path $modulesPath) {
 
 Copy-Item -Path (Join-Path $PSScriptRoot "modules_template") -Destination $modulesPath -Recurse -Force
 Copy-Item -Path ".\.sitecore"  -Destination $PSScriptRoot -Recurse -Force
-$files = Get-ChildItem -Path $modulesPath -Recurse -File
+$files = Get-ChildItem -Path $modulesPath -Recurse -File | ForEach-Object {$_.FullName}
 foreach ($item in $files) {
     (Get-Content -Path $item -Encoding UTF8).Replace("<SITENAME>", $RenderingSiteName).Replace("<SITECORE-API-KEY>", $SitecoreApiKey) `
     | Set-Content -Path $item -Encoding UTF8
