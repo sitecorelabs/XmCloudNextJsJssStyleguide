@@ -108,7 +108,7 @@ $xmCloudBuild = Get-Content "xmcloud.build.json" | ConvertFrom-Json
 $scjssconfig = @{
     sitecore= @{
         deploySecret = $xmCloudBuild.renderingHosts.xmcloudpreview.jssDeploymentSecret
-        deployUrl = "https://xmcloudcm.localhost/sitecore/api/jss/im.port"
+        deployUrl = "https://xmcloudcm.localhost/sitecore/api/jss/import"
       }
     }
 
