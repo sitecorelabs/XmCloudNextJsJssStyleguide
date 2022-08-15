@@ -55,3 +55,4 @@ packages/
 /docker/deploy/platform/*
 !/docker/deploy/platform/.gitkeep
 /docker/traefik/certs/*.pem
+!src/razl/bin/HedgehogDevelopment.Razl.Service.dll
