@@ -39,10 +39,8 @@ COPY src/ ./src/
 
 # Build the Sitecore main platform artifacts
 RUN msbuild .\src\platform\Platform.csproj /p:Configuration=$env:BUILD_CONFIGURATION /m /p:DeployOnBuild=true /p:PublishProfile=Local
-RUN msbuild .\src\razl\razl.csproj /p:Configuration=$env:BUILD_CONFIGURATION /m /p:DeployOnBuild=true /p:PublishProfile=Local
 
 # Save the artifacts for copying into other images (see 'cm' and 'rendering' Dockerfiles).
 FROM mcr.microsoft.com/windows/nanoserver:1809
 WORKDIR /artifacts
 COPY --from=builder /build/docker/deploy/platform  ./sitecore/
-COPY --from=builder /build/docker/deploy/razl  ./sitecore/

@@ -25,5 +25,3 @@ scjssconfig.json
 **/*.yml
 **/*.module.json
 sitecore.json
-
-!src/razl/bin/HedgehogDevelopment.Razl.Service.dll

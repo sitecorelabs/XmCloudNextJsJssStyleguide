@@ -5,6 +5,7 @@ $xmCloudHost = $envContent | Where-Object { $_ -imatch "^CM_HOST=.+" }
 $sitecoreDockerRegistry = $envContent | Where-Object { $_ -imatch "^SITECORE_DOCKER_REGISTRY=.+" }
 $sitecoreVersion = $envContent | Where-Object { $_ -imatch "^SITECORE_VERSION=.+" }
 $ClientCredentialsLogin = $envContent | Where-Object { $_ -imatch "^SITECORE_FedAuth_dot_Auth0_dot_ClientCredentialsLogin=.+" }
+$sitecoreApiKey = ($envContent | Where-Object { $_ -imatch "^SITECORE_API_KEY_xmcloudpreview=.+" }).Split("=")[1]
 
 $xmCloudHost = $xmCloudHost.Split("=")[1]
 $sitecoreDockerRegistry = $sitecoreDockerRegistry.Split("=")[1]
@@ -23,6 +24,7 @@ if ($ClientCredentialsLogin -eq "true") {
 
 #set nuget version
 $xmCloudBuild = Get-Content "xmcloud.build.json" | ConvertFrom-Json
+Set-EnvFileVariable "NODEJS_VERSION" -Value $xmCloudBuild.renderingHosts.xmcloudpreview.nodeVersion
 
 # Double check whether init has been run
 $envCheckVariable = "HOST_LICENSE_FOLDER"
@@ -102,10 +104,55 @@ dotnet sitecore index rebuild
 ## simplify this logic if using this starter for your own development.
 ##
 
+# JSS sample has already been deployed and serialized, push the serialized items
+if (Test-Path .\src\items\content) {
 
+    Write-Host "Pushing items to Sitecore..." -ForegroundColor Green
+    dotnet sitecore ser push # --publish
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Serialization push failed, see errors above."
+    }
+
+# JSS sample has not been deployed yet. Use its deployment process to initialize.
+} else {
+
+    # Some items are needed for JSS to be able to deploy.
+    Write-Host "Pushing init items to Sitecore..." -ForegroundColor Green
+    dotnet sitecore ser push --include InitItems
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Serialization push failed, see errors above."
+    }
+
+    Write-Host "Deploying JSS application..." -ForegroundColor Green
+    Push-Location src\rendering
+    try {
+        jss deploy items -c -d
+    } finally {
+        Pop-Location
+    }
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "JSS deploy failed, see errors above."
+    }
+    dotnet sitecore publish
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Item publish failed, see errors above."
+    }
+
+    Write-Host "Pulling JSS deployed items..." -ForegroundColor Green
+    dotnet sitecore ser pull
+}
+
+Write-Host "Pushing sitecore API key" -ForegroundColor Green
+& docker\build\cm\templates\import-templates.ps1 -RenderingSiteName "xmcloudpreview" -SitecoreApiKey $sitecoreApiKey
 
 if ($ClientCredentialsLogin -ne "true") {
     Write-Host "Opening site..." -ForegroundColor Green
     
     Start-Process https://xmcloudcm.localhost/sitecore/
+    Start-Process https://www.xmcloudpreview.localhost/
 }
+
+Write-Host ""
+Write-Host "Use the following command to monitor your Rendering Host:" -ForegroundColor Green
+Write-Host "docker-compose logs -f rendering"
+Write-Host ""
