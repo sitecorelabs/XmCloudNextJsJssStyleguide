@@ -100,34 +100,6 @@ Write-Host "Adding Windows hosts file entries..." -ForegroundColor Green
 Add-HostsEntry "xmcloudcm.localhost"
 Add-HostsEntry "www.xmcloudpreview.localhost"
 
-###############################
-# Generate scjssconfig
-###############################
-
-$xmCloudBuild = Get-Content "xmcloud.build.json" | ConvertFrom-Json
-$scjssconfig = @{
-    sitecore= @{
-        deploySecret = $xmCloudBuild.renderingHosts.xmcloudpreview.jssDeploymentSecret
-        deployUrl = "https://xmcloudcm.localhost/sitecore/api/jss/import"
-      }
-    }
-
-ConvertTo-Json -InputObject $scjssconfig | Out-File -FilePath "src\rendering\scjssconfig.json"
-
-Set-EnvFileVariable "JSS_DEPLOYMENT_SECRET_xmcloudpreview" -Value $xmCloudBuild.renderingHosts.xmcloudpreview.jssDeploymentSecret
-
-################################
-# Generate Sitecore Api Key
-################################
-
-$sitecoreApiKey = (New-Guid).Guid
-Set-EnvFileVariable "SITECORE_API_KEY_xmcloudpreview" -Value $sitecoreApiKey
-
-################################
-# Generate JSS_EDITING_SECRET
-################################
-$jssEditingSecret = Get-SitecoreRandomString 64 -DisallowSpecial
-Set-EnvFileVariable "JSS_EDITING_SECRET" -Value $jssEditingSecret
 
 ###############################
 # Populate the environment file
@@ -143,8 +115,6 @@ if ($InitEnv) {
     # CM_HOST
     Set-EnvFileVariable "CM_HOST" -Value "xmcloudcm.localhost"
 
-    # RENDERING_HOST
-    Set-EnvFileVariable "RENDERING_HOST" -Value "www.xmcloudpreview.localhost"
 
     # REPORTING_API_KEY = random 64-128 chars
     Set-EnvFileVariable "REPORTING_API_KEY" -Value (Get-SitecoreRandomString 128 -DisallowSpecial)
