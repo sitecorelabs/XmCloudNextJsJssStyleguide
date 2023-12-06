@@ -1,3 +1,11 @@
+# This Repository is No Longer Maintained
+
+This "original" XM Cloud solution template is no longer being updated or maintained, and has been replaced with [XM Cloud Starter Kit](https://github.com/sitecorelabs/xmcloud-foundation-head).
+
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-no-red.svg)](https://bitbucket.org/lbesson/ansi-colors)
+
+<hr />
+
 # XM Cloud Style Guide (Next JS)
 
 ## QUICK START
